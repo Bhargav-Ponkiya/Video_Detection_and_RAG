@@ -107,11 +107,13 @@ throttled loop.
 
 **Ingest** (`POST /api/documents`):
 
-1. Receive file (multer memory storage). Accept `.pdf`, `.txt`, `.md`.
-2. Extract text (`pdf-parse` for PDF, UTF-8 read otherwise).
-3. Chunk: ~1000 chars with ~150 char overlap, split on paragraph/sentence bounds.
-4. Embed each chunk with Gemini `gemini-embedding-001`, `taskType=RETRIEVAL_DOCUMENT`.
-5. Insert `documents` row + one `chunks` row per chunk (with `vector(768)` embedding).
+1. **System Guard:** Count existing documents in the database. If the database reaches **30 total documents**, reject the request to prevent storage exhaustion on free database plans.
+2. **File Size Filter:** Receive file (multer memory storage). Enforce a maximum file size limit of **3MB** (previously 15MB). Accept `.pdf`, `.txt`, `.md`.
+3. **Text Extraction:** Extract text (`pdf-parse` for PDF, UTF-8 read otherwise).
+4. **Coherence Chunking:** Chunk text: ~1000 chars with ~150 char overlap, split on paragraph/sentence bounds.
+5. **Length Safeguard:** Enforce a maximum limit of **200 chunks** per document (~200,000 characters) to prevent free-tier API rate-limit and Render gateway timeout abuse.
+6. **AI Embeddings:** Embed each chunk with Gemini `gemini-embedding-001`, `taskType=RETRIEVAL_DOCUMENT`.
+7. **Database Persistence:** Insert `documents` row + one `chunks` row per chunk (with `vector(768)` embedding) in a single transaction.
 
 **Query** (`POST /api/chat`):
 
@@ -126,6 +128,11 @@ throttled loop.
 
 Base URL = `${VITE_API_URL}` on the client. All responses are JSON. Errors use
 `{ "error": "message" }` with an appropriate HTTP status.
+
+**Global Error Mapping:** Internal errors and external API exceptions (like Google Gemini API failures) are globally intercepted and translated into clean, human-readable responses:
+- **HTTP 429 (Too Many Requests):** Quota/rate-limit triggers on the Gemini API translate to a friendly warning showing the free-tier requests cap.
+- **HTTP 503 (Service Unavailable):** AI server overload responses are mapped to a clean "busy" status.
+- **HTTP 500 (Internal Server Error):** Configuration errors (like a missing API key) are caught and presented as setup warnings rather than server stack-trace leaks.
 
 ### `GET /api/health`
 

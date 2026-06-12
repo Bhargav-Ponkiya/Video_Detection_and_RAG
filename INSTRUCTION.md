@@ -59,10 +59,10 @@ cp .env.example .env
 # edit .env: set DATABASE_URL and GEMINI_API_KEY
 npm install
 npm run db:migrate   # creates the schema via tracked migrations (idempotent)
-npm run dev          # http://localhost:3000
+npm run dev          # http://localhost:8081
 ```
 
-Sanity check: open http://localhost:3000/api/health → `{"status":"ok","db":true,"gemini":true}`.
+Sanity check: open http://localhost:8081/api/health → `{"status":"ok","db":true,"gemini":true}`.
 
 ---
 
@@ -70,7 +70,7 @@ Sanity check: open http://localhost:3000/api/health → `{"status":"ok","db":tru
 
 ```bash
 cd client
-cp .env.example .env          # VITE_API_URL defaults to http://localhost:3000
+cp .env.example .env          # VITE_API_URL defaults to http://localhost:8081
 npm install
 npm run dev                   # http://localhost:5173
 ```

@@ -32,7 +32,7 @@ changing any API, schema, or detection logic, and keep it in sync with code.**
 docker compose up -d                          # Postgres + pgvector on :5433
 
 # server
-cd server && npm install && npm run dev       # nodemon on :3000
+cd server && npm install && npm run dev       # nodemon on :8081
 cd server && npm start                        # production
 cd server && npm run db:migrate               # apply tracked migrations to $DATABASE_URL
 
