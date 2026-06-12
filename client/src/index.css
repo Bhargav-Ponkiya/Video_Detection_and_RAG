@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Tailwind CSS v4 — CSS-first theme (replaces tailwind.config.js).
+   ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* Fonts (loaded in index.html via Google Fonts) */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Custom breakpoints */
+  --breakpoint-xs: 30rem;  /* 480px — between mobile and sm */
+
+  /* Dynamic Theme Palette */
+  --color-ops-bg: var(--ops-bg);
+  --color-ops-panel: var(--ops-panel);
+  --color-ops-card: var(--ops-card);
+  --color-ops-border: var(--ops-border);
+  --color-ops-muted: var(--ops-muted);
+  --color-ops-text: var(--ops-text);
+  --color-ops-text-muted: var(--ops-text-muted);
+  --color-ops-accent: #6366f1;
+
+  --color-severity-red: #f43f5e;
+  --color-severity-amber: #f59e0b;
+  --color-severity-green: #10b981;
+
+  /* Glow shadows */
+  --shadow-glow: 0 0 0 1px rgba(14, 165, 233, 0.15), 0 8px 30px -8px rgba(14, 165, 233, 0.2);
+  --shadow-glow-red: 0 0 0 1px rgba(244, 63, 94, 0.35), 0 0 32px -4px rgba(244, 63, 94, 0.4);
+  --shadow-glow-amber: 0 0 0 1px rgba(245, 158, 11, 0.35), 0 0 32px -4px rgba(245, 158, 11, 0.35);
+  --shadow-glow-green: 0 0 0 1px rgba(16, 185, 129, 0.25), 0 0 24px -8px rgba(16, 185, 129, 0.25);
+
+  /* Animations + their keyframes */
+  --animate-pulse-rec: pulse-rec 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-fade-in: fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-in: slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes pulse-rec {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.9); }
+  }
+  @keyframes fade-in {
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-in {
+    0% { opacity: 0; transform: translateX(12px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--ops-border, currentColor);
+  }
+
+  :root {
+    --ops-bg: #f8fafc;
+    --ops-panel: #ffffff;
+    --ops-card: #ffffff;
+    --ops-border: #e2e8f0;
+    --ops-muted: #cbd5e1;
+    --ops-text: #0f172a;
+    --ops-text-muted: #64748b;
+    color-scheme: light;
+  }
+
+  .dark {
+    --ops-bg: #030712;
+    --ops-panel: #0b0f19;
+    --ops-card: #0f172a;
+    --ops-border: #1f2937;
+    --ops-muted: #374151;
+    --ops-text: #f9fafb;
+    --ops-text-muted: #9ca3af;
+    color-scheme: dark;
+  }
+
+  html {
+    height: 100%;
+    height: -webkit-fill-available;
+  }
+
+  body,
+  #root {
+    min-height: 100%;
+    min-height: 100dvh;
+  }
+
+  body {
+    @apply bg-ops-bg text-ops-text antialiased font-sans transition-colors duration-300;
+  }
+
+  :root body {
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(99, 102, 241, 0.04), transparent 45%),
+      radial-gradient(circle at 90% 100%, rgba(14, 165, 233, 0.05), transparent 50%);
+    background-attachment: fixed;
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(99, 102, 241, 0.02), transparent 45%),
+      radial-gradient(circle at 90% 100%, rgba(14, 165, 233, 0.02), transparent 50%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    @apply bg-sky-500/20 text-sky-900 dark:text-sky-100;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-ops-border bg-ops-panel shadow-xs transition-all duration-300;
+  }
+
+  .btn,
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold
+      transition-all duration-200 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply border border-ops-border bg-ops-panel text-ops-text-muted hover:bg-ops-bg hover:text-ops-text shadow-xs;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-ops-border bg-ops-panel/50 px-4 py-2.5 text-sm text-ops-text
+      placeholder:text-ops-text-muted/70 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/10 transition-all duration-200;
+  }
+
+  /* border-l-3 utility (Tailwind v4 doesn't auto-generate odd widths) */
+  .border-l-3 {
+    border-left-width: 3px;
+  }
+}
+
+/* Custom scrollbars for the aesthetic */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ops-border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--ops-border);
+  border-radius: 9999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ops-text-muted);
+}
