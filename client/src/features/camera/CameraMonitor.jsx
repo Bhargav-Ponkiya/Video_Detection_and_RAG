@@ -166,30 +166,21 @@ export default function CameraMonitor() {
         {/* Right Side: Telemetry Stats & Actions */}
         <div className="flex flex-wrap items-center gap-4">
           {/* Live threat status dashboard */}
-          <div className="flex items-center gap-3 bg-ops-bg/40 border border-ops-border/70 rounded-xl p-1 px-3 shadow-inner">
-            {/* RED (Human) */}
-            <div className="flex items-center gap-2 border-r border-ops-border/40 pr-3">
-              <span className={`h-2 w-2 rounded-full bg-red-500 ${counts.RED > 0 ? 'animate-pulse-rec' : ''}`} />
-              <div className="flex flex-col leading-none">
-                <span className="font-mono text-[7px] font-black tracking-widest text-ops-text-muted">HUMANS</span>
-                <span className="mt-1 font-mono text-xs font-black tabular-nums text-red-500">{counts.RED}</span>
-              </div>
+          <div className="flex items-center gap-4 bg-ops-bg/40 border border-ops-border/70 rounded-xl px-4 py-1.5 shadow-inner">
+            {/* HUMANS */}
+            <div className="flex items-center gap-2 border-r border-ops-border/40 pr-4">
+              <span className="text-[10px] font-mono font-bold text-ops-text-muted uppercase tracking-wider select-none">HUMANS:</span>
+              <span className="font-mono text-xs font-black text-red-500 tabular-nums">{counts.RED}</span>
             </div>
-            {/* YELLOW (Animal/Bird) */}
-            <div className="flex items-center gap-2 border-r border-ops-border/40 pr-3">
-              <span className="h-2 w-2 rounded-full bg-amber-500" />
-              <div className="flex flex-col leading-none">
-                <span className="font-mono text-[7px] font-black tracking-widest text-ops-text-muted">ANIMALS</span>
-                <span className="mt-1 font-mono text-xs font-black tabular-nums text-amber-500">{counts.YELLOW}</span>
-              </div>
+            {/* ANIMALS */}
+            <div className="flex items-center gap-2 border-r border-ops-border/40 pr-4">
+              <span className="text-[10px] font-mono font-bold text-ops-text-muted uppercase tracking-wider select-none">ANIMALS:</span>
+              <span className="font-mono text-xs font-black text-amber-500 tabular-nums">{counts.YELLOW}</span>
             </div>
-            {/* GREEN (Clear) */}
+            {/* CLEAR */}
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              <div className="flex flex-col leading-none">
-                <span className="font-mono text-[7px] font-black tracking-widest text-ops-text-muted">ALL CLEAR</span>
-                <span className="mt-1 font-mono text-xs font-black tabular-nums text-emerald-500">{counts.GREEN}</span>
-              </div>
+              <span className="text-[10px] font-mono font-bold text-ops-text-muted uppercase tracking-wider select-none">CLEAR:</span>
+              <span className="font-mono text-xs font-black text-emerald-500 tabular-nums">{counts.GREEN}</span>
             </div>
           </div>
 

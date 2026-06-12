@@ -116,34 +116,25 @@ export default function DocumentRAG() {
         {/* Right Side: Telemetry Stats & Actions */}
         <div className="flex flex-wrap items-center gap-4">
           {/* Document Ingestion Telemetry Box */}
-          <div className="flex items-center gap-3 bg-ops-bg/40 border border-ops-border/70 rounded-xl p-1 px-3 shadow-inner">
+          <div className="flex items-center gap-4 bg-ops-bg/40 border border-ops-border/70 rounded-xl px-4 py-1.5 shadow-inner">
             {/* Files Ingested */}
-            <div className="flex items-center gap-2 border-r border-ops-border/40 pr-3">
-              <span className="h-2 w-2 rounded-full bg-indigo-500" />
-              <div className="flex flex-col leading-none">
-                <span className="font-mono text-[7px] font-black tracking-widest text-ops-text-muted">FILES</span>
-                <span className="mt-1 font-mono text-xs font-black tabular-nums text-indigo-500 dark:text-indigo-400">{documents.length}</span>
-              </div>
+            <div className="flex items-center gap-2 border-r border-ops-border/40 pr-4">
+              <span className="text-[10px] font-mono font-bold text-ops-text-muted uppercase tracking-wider select-none">FILES:</span>
+              <span className="font-mono text-xs font-black text-indigo-500 dark:text-indigo-400 tabular-nums">{documents.length}</span>
             </div>
             {/* Total Chunks */}
-            <div className="flex items-center gap-2 border-r border-ops-border/40 pr-3">
-              <span className="h-2 w-2 rounded-full bg-sky-500" />
-              <div className="flex flex-col leading-none">
-                <span className="font-mono text-[7px] font-black tracking-widest text-ops-text-muted">CHUNKS</span>
-                <span className="mt-1 font-mono text-xs font-black tabular-nums text-sky-500 dark:text-sky-400">
-                  {documents.reduce((acc, doc) => acc + (doc.numChunks || 0), 0)}
-                </span>
-              </div>
+            <div className="flex items-center gap-2 border-r border-ops-border/40 pr-4">
+              <span className="text-[10px] font-mono font-bold text-ops-text-muted uppercase tracking-wider select-none">CHUNKS:</span>
+              <span className="font-mono text-xs font-black text-sky-500 dark:text-sky-400 tabular-nums">
+                {documents.reduce((acc, doc) => acc + (doc.numChunks || 0), 0)}
+              </span>
             </div>
             {/* Scope */}
             <div className="flex items-center gap-2">
-              <span className={`h-2 w-2 rounded-full ${selectedId ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-              <div className="flex flex-col leading-none">
-                <span className="font-mono text-[7px] font-black tracking-widest text-ops-text-muted">SCOPE</span>
-                <span className={`mt-1 font-mono text-xs font-black truncate max-w-[100px] ${selectedId ? 'text-amber-500 dark:text-amber-400' : 'text-emerald-500 dark:text-emerald-400'}`}>
-                  {selectedDoc ? selectedDoc.filename : 'Global'}
-                </span>
-              </div>
+              <span className="text-[10px] font-mono font-bold text-ops-text-muted uppercase tracking-wider select-none">SCOPE:</span>
+              <span className={`font-mono text-xs font-black truncate max-w-[100px] ${selectedId ? 'text-amber-500 dark:text-amber-400' : 'text-emerald-500 dark:text-emerald-400'}`}>
+                {selectedDoc ? selectedDoc.filename : 'Global'}
+              </span>
             </div>
           </div>
 
