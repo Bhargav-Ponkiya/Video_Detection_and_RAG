@@ -94,27 +94,27 @@ live webcam via the "Use webcam" toggle.
 
 ## 4. Deploy (all free tier)
 
-### 4a. Database
+### 4a. Active Deployments
+* **Live Frontend:** https://video-detection-and-rag-bhargavp.vercel.app
+* **Live Backend:** https://camera-rag-server.onrender.com
 
+### 4b. Database
 Already created in step 1 — nothing more to do.
 
-### 4b. Server → Render
-
+### 4c. Server → Render
 1. Push the repo to GitHub.
 2. Render → **New → Web Service** → pick the repo → **Root Directory = `server`**.
 3. Build command `npm install`, start command `npm start`.
 4. Add environment variables (from `server/.env.example`):
    `DATABASE_URL`, `GEMINI_API_KEY`, `GEMINI_EMBED_MODEL`, `GEMINI_CHAT_MODEL`,
-   `CLIENT_ORIGIN` (set to your Vercel URL once you have it).
-5. Deploy. Note the service URL, e.g. `https://camera-rag-api.onrender.com`.
-   (A `render.yaml` is included if you prefer Blueprint deploys.)
+   `CLIENT_ORIGIN` (set to `https://video-detection-and-rag-bhargavp.vercel.app`).
+5. Deploy. The backend service will run at `https://camera-rag-server.onrender.com`.
 
-### 4c. Client → Vercel
-
+### 4d. Client → Vercel
 1. Vercel → **Add New → Project** → import the repo → **Root Directory = `client`**.
 2. Framework preset = Vite (build `npm run build`, output `dist`).
-3. Add env var `VITE_API_URL` = the Render URL from 4b.
-4. Deploy. Copy the Vercel URL and set it as `CLIENT_ORIGIN` on Render (redeploy server).
+3. Add env var `VITE_API_URL` = `https://camera-rag-server.onrender.com`.
+4. Deploy. The frontend SPA will run at `https://video-detection-and-rag-bhargavp.vercel.app`.
 
 > First RAG request after idle may take ~30–60s (free tiers cold-start). The camera
 > page is instant because it is fully client-side.
