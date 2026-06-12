@@ -77,9 +77,24 @@ app.use((err, req, res, next) => {
   res.status(status).json({ error: clientMsg });
 });
 
-app.listen(config.port, () => {
-  console.log(`[server] listening on http://localhost:${config.port}`);
-  console.log(`[server] CORS allowlist: ${config.clientOrigin.join(', ')}`);
-});
+const { runMigrations } = require('./db/migrate');
+
+async function startServer() {
+  try {
+    console.log('[db:migrate] Checking and applying database migrations...');
+    await runMigrations();
+    console.log('[db:migrate] Database is up to date.');
+  } catch (err) {
+    console.error('[db:migrate] Startup migration failed:', err.message);
+    console.warn('[db:migrate] Continuing boot process. Database states may be degraded.');
+  }
+
+  app.listen(config.port, () => {
+    console.log(`[server] listening on http://localhost:${config.port}`);
+    console.log(`[server] CORS allowlist: ${config.clientOrigin.join(', ')}`);
+  });
+}
+
+startServer();
 
 module.exports = app;

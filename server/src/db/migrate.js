@@ -15,10 +15,9 @@ const config = require('../config');
 
 const MIGRATIONS_DIR = path.join(__dirname, 'migrations');
 
-async function main() {
+async function runMigrations() {
   if (!config.db.url) {
-    console.error('[db:migrate] DATABASE_URL is not set. Aborting.');
-    process.exit(1);
+    throw new Error('DATABASE_URL is not set.');
   }
 
   const pool = new Pool({ connectionString: config.db.url, ssl: config.db.ssl });
@@ -74,12 +73,18 @@ async function main() {
         ? `[db:migrate] done — applied ${count} migration(s).`
         : '[db:migrate] done — database already up to date.'
     );
-  } catch (err) {
-    console.error('[db:migrate]', err.message);
-    process.exitCode = 1;
   } finally {
     await pool.end();
   }
 }
 
-main();
+module.exports = { runMigrations };
+
+if (require.main === module) {
+  runMigrations()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error('[db:migrate]', err.message);
+      process.exit(1);
+    });
+}
