@@ -49,10 +49,10 @@ export default function CameraMonitor() {
     setSeverities((prev) => ({ ...prev, [payload.cameraId]: payload.severity }));
     if (payload.severity === 'GREEN') return; // GREEN resets are noise
 
-    // Cooldown per-camera for live alerts (30 seconds) to prevent looping/flicker noise
+    // Cooldown per-camera for live alerts (5 seconds) to prevent looping/flicker noise
     const now = Date.now();
     const lastTime = lastAlertTimes.current[payload.cameraId] || 0;
-    if (!payload.simulated && (now - lastTime < 30000)) {
+    if (!payload.simulated && (now - lastTime < 5000)) {
       return; // Skip logging alert
     }
     lastAlertTimes.current[payload.cameraId] = now;
