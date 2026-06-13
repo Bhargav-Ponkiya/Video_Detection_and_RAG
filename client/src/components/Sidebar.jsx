@@ -62,7 +62,7 @@ export default function Sidebar() {
 
   return (
     <aside 
-      className={`relative flex h-screen shrink-0 flex-col border-r border-ops-border bg-ops-panel shadow-xs transition-all duration-300 ease-in-out ${
+      className={`relative hidden md:flex h-screen shrink-0 flex-col border-r border-ops-border bg-ops-panel shadow-xs transition-all duration-300 ease-in-out ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >

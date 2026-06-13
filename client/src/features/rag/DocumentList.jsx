@@ -162,7 +162,7 @@ export default function DocumentList({ documents, loading, selectedId, onSelect,
                       type="button"
                       onClick={() => handleDelete(doc)}
                       disabled={deleting}
-                      className="shrink-0 rounded-lg p-1.5 text-ops-text-muted opacity-0 transition hover:bg-red-500/15 hover:text-red-600 focus:opacity-100 group-hover:opacity-100 disabled:opacity-60"
+                      className="shrink-0 rounded-lg p-1.5 text-ops-text-muted opacity-100 md:opacity-0 transition hover:bg-red-500/15 hover:text-red-600 focus:opacity-100 md:group-hover:opacity-100 disabled:opacity-60 cursor-pointer"
                       aria-label={`Delete ${doc.filename}`}
                     >
                       {deleting ? (

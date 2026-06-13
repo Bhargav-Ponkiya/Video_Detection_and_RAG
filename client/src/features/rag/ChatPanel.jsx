@@ -19,7 +19,7 @@ const nextId = () => `m${++mid}`;
  * @param {string} props.scopeLabel           human label of the scope
  * @param {boolean} props.hasDocuments
  */
-export default function ChatPanel({ documentId, scopeLabel, hasDocuments }) {
+export default function ChatPanel({ documentId, scopeLabel, hasDocuments, onToggleDocs }) {
   const [messages, setMessages] = useState([]); // {id, role, text, sources?, error?}
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -72,7 +72,7 @@ export default function ChatPanel({ documentId, scopeLabel, hasDocuments }) {
   return (
     <section className="flex h-full min-h-0 flex-col overflow-hidden border-0 bg-transparent rounded-none" style={{background: 'inherit'}}>
       {/* Header */}
-      <header className="flex items-center justify-between gap-3 border-b border-ops-border px-4 py-3">
+      <header className="flex items-center justify-between gap-3 border-b border-ops-border px-4 py-3 select-none">
         <div className="flex items-center gap-2">
           <span className="grid h-7 w-7 place-items-center rounded-lg bg-sky-500/15 text-sky-300">
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
@@ -81,9 +81,41 @@ export default function ChatPanel({ documentId, scopeLabel, hasDocuments }) {
           </span>
           <h2 className="text-sm font-bold text-ops-text">Ask your documents</h2>
         </div>
-        <Badge tone="sky" dot>
-          {scopeLabel}
-        </Badge>
+        <div className="flex items-center gap-2">
+          {onToggleDocs ? (
+            <button
+              type="button"
+              onClick={onToggleDocs}
+              className="flex items-center gap-1 cursor-pointer transition-all hover:scale-[1.02] active:scale-95 text-left md:pointer-events-none"
+              title="Select document source"
+            >
+              <Badge tone="sky" dot>
+                <span className="flex items-center gap-1.5 font-bold">
+                  <span className="truncate max-w-[120px] sm:max-w-[200px] md:max-w-xs">{scopeLabel}</span>
+                  <svg className="h-3 w-3 text-sky-500 dark:text-sky-400 shrink-0 md:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </span>
+              </Badge>
+            </button>
+          ) : (
+            <Badge tone="sky" dot>
+              {scopeLabel}
+            </Badge>
+          )}
+          {onToggleDocs && (
+            <button
+              type="button"
+              onClick={onToggleDocs}
+              className="flex md:hidden h-8 w-8 items-center justify-center rounded-xl border border-ops-border bg-ops-panel text-ops-text-muted transition active:scale-95 cursor-pointer shadow-xs"
+              title="Upload new document"
+            >
+              <svg className="h-4.5 w-4.5 text-sky-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Messages */}

@@ -109,7 +109,7 @@ export default function DocumentUpload({ onUploaded }) {
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="btn-ghost mt-1 px-3.5 py-2 text-xs font-bold tracking-tight rounded-xl"
+            className="btn bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 mt-1 px-4 py-2 text-xs font-bold tracking-tight rounded-xl hover:bg-sky-500/20 transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.98]"
           >
             Browse files
           </button>

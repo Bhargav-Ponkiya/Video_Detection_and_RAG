@@ -48,8 +48,43 @@ export default function CameraCard({
 
   const sourceLive = useWebcam ? streamReady && !videoError : !videoError;
 
-  // Detection runs against the real pixel source (file or webcam) when not simulating.
-  const detectionEnabled = !override && sourceLive && modelStatus === 'ready';
+  const containerRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(true);
+
+  // IntersectionObserver to detect when card is offscreen (e.g. scrolled out of view on mobile)
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || typeof IntersectionObserver === 'undefined') return undefined;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  // Pause / resume video playback based on visibility to save CPU/GPU cycles
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (isVisible) {
+      if (video.paused && sourceLive) {
+        video.play().catch(() => {});
+      }
+    } else {
+      if (!video.paused) {
+        video.pause();
+      }
+    }
+  }, [isVisible, sourceLive]);
+
+  // Detection runs against the real pixel source (file or webcam) when not simulating & when visible.
+  const detectionEnabled = !override && sourceLive && modelStatus === 'ready' && isVisible;
   const { predictions, severity: detected } = useObjectDetection({
     videoRef,
     model,
@@ -224,6 +259,7 @@ export default function CameraCard({
 
   return (
     <motion.div
+      ref={containerRef}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
@@ -241,6 +277,7 @@ export default function CameraCard({
             loop={!useWebcam}
             autoPlay
             playsInline
+            crossOrigin="anonymous"
             {...(!useWebcam ? { src: camera.src } : {})}
             onError={() => setVideoError(true)}
             onLoadedData={() => setVideoError(false)}

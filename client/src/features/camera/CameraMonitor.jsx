@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Badge from '../../components/Badge.jsx';
 
 import { CAMERAS } from './cameras.config.js';
@@ -21,6 +22,8 @@ export default function CameraMonitor() {
   const [alerts, setAlerts] = useState([]);
   const [severities, setSeverities] = useState({}); // live per-camera severity
   const [signals, setSignals] = useState({}); // { [cameraId]: hasLiveSource }
+  const [showControlsPanel, setShowControlsPanel] = useState(false);
+  const [showAlertsDrawer, setShowAlertsDrawer] = useState(false);
 
   const simTimers = useRef({});
   const lastAlertTimes = useRef({}); // { [cameraId]: timestamp }
@@ -133,38 +136,76 @@ export default function CameraMonitor() {
     'grid-rows-3';
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-ops-bg">
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-ops-bg">
 
       {/* ── Premium Top Header ─────────────────────────────────── */}
-      <header className="relative z-30 flex shrink-0 flex-col lg:flex-row lg:items-center justify-between border-b border-ops-border bg-ops-panel px-6 py-3.5 gap-4">
+      <header className="relative z-30 flex shrink-0 flex-col md:flex-row md:items-center justify-between border-b border-ops-border bg-ops-panel px-4 md:px-6 py-3 gap-3">
         {/* Left Side: Page Title and AI Status */}
-        <div className="flex flex-col">
-          <div className="flex items-center gap-3">
-            <h1 className="text-base font-extrabold tracking-tight text-ops-text uppercase select-none">
-              Camera Monitor
-            </h1>
-            <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase border ${
-              modelStatus === 'ready'
-                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-xs'
-                : modelStatus === 'loading'
-                  ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20 shadow-xs animate-pulse'
-                  : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
-            }`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${
-                modelStatus === 'ready' ? 'bg-emerald-500' :
-                modelStatus === 'loading' ? 'bg-sky-500 animate-ping' :
-                'bg-amber-500'
-              }`} />
-              COCO-SSD: {modelStatus === 'ready' ? 'Ready' : modelStatus === 'loading' ? 'Loading…' : 'Offline'}
-            </span>
+        <div className="flex items-center justify-between md:justify-start gap-3 w-full md:w-auto">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <h1 className="text-sm md:text-base font-extrabold tracking-tight text-ops-text uppercase select-none leading-none">
+                Camera Monitor
+              </h1>
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[8px] md:text-[9px] font-bold tracking-wider uppercase border leading-none ${
+                modelStatus === 'ready'
+                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-xs'
+                  : modelStatus === 'loading'
+                    ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20 shadow-xs animate-pulse'
+                    : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+              }`}>
+                <span className={`h-1 w-1 rounded-full ${
+                  modelStatus === 'ready' ? 'bg-emerald-500' :
+                  modelStatus === 'loading' ? 'bg-sky-500 animate-ping' :
+                  'bg-amber-500'
+                }`} />
+                {modelStatus === 'ready' ? 'Ready' : modelStatus === 'loading' ? 'Loading…' : 'Offline'}
+              </span>
+            </div>
+            <p className="hidden md:block text-[11px] text-ops-text-muted mt-0.5 font-medium">
+              Live browser-based computer vision surveillance wall & alerts
+            </p>
           </div>
-          <p className="text-[11px] text-ops-text-muted mt-0.5 font-medium">
-            Live browser-based computer vision surveillance wall & alerts
-          </p>
+
+          {/* Mobile Actions: Notifications drawer + control panel toggle */}
+          <div className="flex items-center gap-2 md:hidden">
+            {/* Notification Bell */}
+            <button
+              type="button"
+              onClick={() => setShowAlertsDrawer(true)}
+              className="relative flex h-8 w-8 items-center justify-center rounded-xl border border-ops-border bg-ops-panel text-ops-text-muted shadow-xs active:scale-95 transition-all cursor-pointer"
+              aria-label="Alert Feed"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              {alerts.length > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white ring-2 ring-ops-panel animate-pulse-rec">
+                  {alerts.length}
+                </span>
+              )}
+            </button>
+
+            {/* Controls Toggle */}
+            <button
+              type="button"
+              onClick={() => setShowControlsPanel(!showControlsPanel)}
+              className={`flex h-8 w-8 items-center justify-center rounded-xl border shadow-xs active:scale-95 transition-all cursor-pointer ${
+                showControlsPanel
+                  ? 'bg-sky-500/10 text-sky-500 border-sky-500/30'
+                  : 'bg-ops-panel text-ops-text-muted border-ops-border'
+              }`}
+              aria-label="Controls"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        {/* Right Side: Telemetry Stats & Actions */}
-        <div className="flex flex-wrap items-center gap-4">
+        {/* Desktop Controls (hidden on mobile) */}
+        <div className="hidden md:flex flex-wrap items-center gap-4">
           {/* Live threat status dashboard */}
           <div className="flex items-center gap-4 bg-ops-bg/40 border border-ops-border/70 rounded-xl px-4 py-1.5 shadow-inner">
             {/* HUMANS */}
@@ -219,83 +260,198 @@ export default function CameraMonitor() {
         </div>
       </header>
 
-      {/* ── Body ─────────────────────────────────────────────────── */}
-      <div className="flex min-h-0 flex-1 overflow-hidden">
+      {/* Mobile Collapsible Controls Panel */}
+      <AnimatePresence>
+        {showControlsPanel && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="md:hidden border-b border-ops-border bg-ops-panel/95 backdrop-blur-md px-4 py-3 flex flex-col gap-3 z-30 shrink-0"
+          >
+            {/* Mobile Stats Row */}
+            <div className="flex items-center justify-around bg-ops-bg/40 border border-ops-border/70 rounded-xl px-2 py-1.5 shadow-inner select-none">
+              <div className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse-rec" />
+                <span className="text-[9px] font-mono font-bold text-ops-text-muted uppercase">HUMANS</span>
+                <span className="font-mono text-xs font-black text-red-500 tabular-nums">{counts.RED}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                <span className="text-[9px] font-mono font-bold text-ops-text-muted uppercase">ANIMALS</span>
+                <span className="font-mono text-xs font-black text-amber-500 tabular-nums">{counts.YELLOW}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <span className="text-[9px] font-mono font-bold text-ops-text-muted uppercase">CLEAR</span>
+                <span className="font-mono text-xs font-black text-emerald-500 tabular-nums">{counts.GREEN}</span>
+              </div>
+            </div>
 
-        {/* Camera grid — fills all available height, no scroll */}
+            {/* Mobile Simulation Control Panel */}
+            <div className="flex flex-col gap-2 bg-ops-bg/40 p-2.5 rounded-xl border border-ops-border/60">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[9px] font-black uppercase tracking-widest text-ops-text-muted select-none">Simulate Threat:</span>
+                <select
+                  value={simTarget}
+                  onChange={(e) => setSimTarget(e.target.value)}
+                  className="h-6 cursor-pointer rounded border border-ops-border bg-ops-panel px-1.5 font-mono text-[9px] text-ops-text focus:outline-none"
+                  aria-label="Simulation target camera"
+                >
+                  <option value="all">All Feeds</option>
+                  {visibleCameras.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-3 gap-2 mt-1">
+                <button
+                  type="button"
+                  onClick={() => handleSimulate("RED")}
+                  className="flex h-7 items-center justify-center rounded-lg border border-red-200 dark:border-red-800 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 hover:bg-red-200 font-bold text-[10px] transition-all cursor-pointer active:scale-95"
+                >
+                  Human
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSimulate("YELLOW")}
+                  className="flex h-7 items-center justify-center rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 hover:bg-amber-200 font-bold text-[10px] transition-all cursor-pointer active:scale-95"
+                >
+                  Animal
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSimulate("GREEN")}
+                  className="flex h-7 items-center justify-center rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 font-bold text-[10px] transition-all cursor-pointer active:scale-95"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Feeds Selector */}
+            <div className="flex items-center justify-between border-t border-ops-border/40 pt-2 shrink-0">
+              <span className="font-mono text-[9px] font-black uppercase tracking-widest text-ops-text-muted select-none">Active Feeds:</span>
+              <CameraSelector
+                cameras={CAMERAS}
+                visibleIds={visibleIds}
+                onChange={setVisibleIds}
+                statusOf={statusOf}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Body ─────────────────────────────────────────────────── */}
+      <div className="flex min-h-0 flex-1 overflow-hidden relative">
+
+        {/* Camera container */}
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           {visibleCameras.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center text-center">
+            <div className="flex h-full flex-col items-center justify-center text-center p-6 select-none">
               <p className="text-sm font-semibold text-ops-text">No feeds selected</p>
               <p className="mt-1 text-xs text-ops-text-muted">
-                Use the <span className="text-sky-600 font-bold">Feeds</span> button in the top bar.
+                Use the <span className="text-sky-500 font-bold">Feeds</span> selector in the control panel.
               </p>
               <button
                 type="button"
                 onClick={() => setVisibleIds(CAMERAS.map((c) => c.id))}
-                className="btn-ghost mt-4 px-3 py-1.5 text-xs"
+                className="btn-ghost mt-4 px-3 py-1.5 text-xs rounded-xl"
               >
                 Show all cameras
               </button>
             </div>
           ) : (
-            <div className={`grid h-full gap-0 ${gridCols} ${gridRows}`}>
-              {visibleCameras.map((cam) => (
-                <div key={cam.id} className="min-h-0 overflow-hidden border border-ops-border/40">
-                  <CameraCard
-                    camera={cam}
-                    model={model}
-                    modelStatus={modelStatus}
-                    override={overrides[cam.id] || null}
-                    useWebcam={webcamCardId === cam.id}
-                    onToggleWebcam={handleToggleWebcam}
-                    onSeverity={handleSeverity}
-                    onSourceState={handleSourceState}
-                  />
-                </div>
-              ))}
-            </div>
+            <>
+              {/* Desktop View: Grid Layout */}
+              <div className={`hidden md:grid h-full gap-0 ${gridCols} ${gridRows}`}>
+                {visibleCameras.map((cam) => (
+                  <div key={cam.id} className="min-h-0 overflow-hidden border border-ops-border/40">
+                    <CameraCard
+                      camera={cam}
+                      model={model}
+                      modelStatus={modelStatus}
+                      override={overrides[cam.id] || null}
+                      useWebcam={webcamCardId === cam.id}
+                      onToggleWebcam={handleToggleWebcam}
+                      onSeverity={handleSeverity}
+                      onSourceState={handleSourceState}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Mobile View: Scrollable List Layout */}
+              <div className="flex md:hidden flex-col gap-4 overflow-y-auto p-4 h-full">
+                {visibleCameras.map((cam) => (
+                  <div key={cam.id} className="w-full shrink-0 aspect-video rounded-xl overflow-hidden border border-ops-border/40 shadow-xs">
+                    <CameraCard
+                      camera={cam}
+                      model={model}
+                      modelStatus={modelStatus}
+                      override={overrides[cam.id] || null}
+                      useWebcam={webcamCardId === cam.id}
+                      onToggleWebcam={handleToggleWebcam}
+                      onSeverity={handleSeverity}
+                      onSourceState={handleSourceState}
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
 
-        {/* Right pane: alert log */}
+        {/* Desktop Sidebar: alert log */}
         <div className="hidden w-64 shrink-0 border-l border-ops-border bg-ops-panel lg:flex lg:flex-col xl:w-72">
           <AlertLog alerts={alerts} onClear={() => setAlerts([])} />
         </div>
       </div>
 
-      {/* Mobile-only: alert log mini strip */}
-      <div className="shrink-0 border-t border-ops-border lg:hidden">
-        <AlertLogMini alerts={alerts} onClear={() => setAlerts([])} />
-      </div>
-    </div>
-  );
-}
-
-
-function AlertLogMini({ alerts, onClear }) {
-  if (alerts.length === 0) return null;
-  const last = alerts.slice(0, 3);
-  const BG = { RED: 'bg-red-500', YELLOW: 'bg-amber-500', GREEN: 'bg-emerald-500' };
-  return (
-    <div className="bg-ops-panel px-3 py-2">
-      <div className="mb-1 flex items-center justify-between">
-        <span className="font-mono text-[9px] font-black uppercase tracking-widest text-ops-text-muted">
-          Recent Alerts
-        </span>
-        <button onClick={onClear} className="text-[10px] text-ops-text-muted hover:text-ops-text">
-          Clear
-        </button>
-      </div>
-      <ul className="flex flex-col gap-1">
-        {last.map((a) => (
-          <li key={a.id} className="flex items-center gap-2 text-[10px]">
-            <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${BG[a.severity] || 'bg-slate-500'}`} />
-            <span className="font-mono font-bold text-ops-text">{a.cameraName}</span>
-            <span className="truncate text-ops-text-muted">{a.label}</span>
-          </li>
-        ))}
-      </ul>
+      {/* Mobile Alert Log Drawer */}
+      <AnimatePresence>
+        {showAlertsDrawer && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowAlertsDrawer(false)}
+              className="fixed inset-0 z-50 bg-black md:hidden"
+            />
+            {/* Drawer sheet */}
+            <motion.div
+              initial={{ translateY: '100%' }}
+              animate={{ translateY: 0 }}
+              exit={{ translateY: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="fixed inset-x-0 bottom-0 z-50 h-[82vh] rounded-t-3xl border-t border-ops-border bg-ops-panel shadow-2xl flex flex-col md:hidden overflow-hidden"
+            >
+              {/* Drag bar indicator */}
+              <div className="flex justify-center py-2.5 shrink-0 select-none">
+                <div className="h-1.5 w-12 rounded-full bg-ops-border" />
+              </div>
+              
+              {/* Drawer Action Row */}
+              <div className="px-4 pb-2.5 flex justify-between items-center border-b border-ops-border shrink-0 select-none">
+                <span className="font-mono text-[9px] font-black uppercase tracking-widest text-ops-text-muted">Live Security Feed</span>
+                <button
+                  onClick={() => setShowAlertsDrawer(false)}
+                  className="text-xs font-bold text-sky-500 hover:text-sky-400 py-1 px-3 border border-ops-border rounded-xl bg-ops-bg active:scale-95 cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+              
+              <div className="flex-1 min-h-0">
+                <AlertLog alerts={alerts} onClear={() => setAlerts([])} />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
